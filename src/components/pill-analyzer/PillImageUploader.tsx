@@ -3,8 +3,7 @@ import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { PillAnalysisResult } from "@/types/health";
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 
 type PillImageUploaderProps = {
   onAnalyze: (file: File) => void;
@@ -75,6 +74,16 @@ export function PillImageUploader({ onAnalyze, isLoading }: PillImageUploaderPro
         return;
       }
       
+      // Check if file size is less than 5MB
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please upload an image smaller than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       setSelectedFile(file);
       
       // Create preview URL for the image
@@ -111,7 +120,7 @@ export function PillImageUploader({ onAnalyze, isLoading }: PillImageUploaderPro
       <CardHeader>
         <CardTitle className="text-2xl text-health-primary">Pill/Medicine Analyzer</CardTitle>
         <CardDescription>
-          Upload an image of a pill or medication to identify it and learn about its usage
+          Upload an image of a pill or medication to identify it and learn about its usage with AI
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
@@ -140,6 +149,7 @@ export function PillImageUploader({ onAnalyze, isLoading }: PillImageUploaderPro
                   type="button" 
                   variant="outline" 
                   onClick={handleBrowseClick}
+                  disabled={isLoading}
                 >
                   Choose a different image
                 </Button>
@@ -156,12 +166,13 @@ export function PillImageUploader({ onAnalyze, isLoading }: PillImageUploaderPro
                       type="button"
                       className="text-health-primary hover:underline"
                       onClick={handleBrowseClick}
+                      disabled={isLoading}
                     >
                       browse
                     </button>
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Supports JPEG, PNG (max 5MB)
+                    For best results, use a clear image with good lighting
                   </p>
                 </div>
               </div>
@@ -174,7 +185,14 @@ export function PillImageUploader({ onAnalyze, isLoading }: PillImageUploaderPro
             className="w-full bg-health-primary"
             disabled={!selectedFile || isLoading}
           >
-            {isLoading ? "Analyzing image..." : "Identify Medication"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                Analyzing with AI...
+              </>
+            ) : (
+              "Identify Medication"
+            )}
           </Button>
         </CardFooter>
       </form>

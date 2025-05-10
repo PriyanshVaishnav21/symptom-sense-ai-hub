@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { DiagnosisResult, UserFeedback, SeverityLevel } from '@/types/health';
+import { DiagnosisResult, UserFeedback, SeverityLevel, PillAnalysisResult } from '@/types/health';
 
 export const saveHealthResult = async (result: Omit<DiagnosisResult, 'id' | 'createdAt'>) => {
   try {
@@ -71,6 +71,20 @@ export const deleteHealthResult = async (id: string) => {
     return true;
   } catch (error) {
     console.error('Error deleting health result:', error);
+    throw error;
+  }
+};
+
+export const analyzePill = async (imageData: string): Promise<PillAnalysisResult> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('analyze-pill', {
+      body: { image: imageData },
+    });
+
+    if (error) throw error;
+    return data as PillAnalysisResult;
+  } catch (error) {
+    console.error('Error analyzing pill:', error);
     throw error;
   }
 };
