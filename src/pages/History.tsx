@@ -16,6 +16,7 @@ const History = () => {
     const fetchHistory = async () => {
       try {
         if (user) {
+          // The getUserHealthHistory function now returns properly typed data
           const data = await getUserHealthHistory();
           setHistory(data);
         }
