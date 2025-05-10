@@ -88,7 +88,7 @@
 
 @layer components {
   .health-card {
-    @apply bg-white rounded-lg shadow-md p-6 border border-border transition-all duration-300 hover:shadow-lg;
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-border dark:border-gray-700 transition-all duration-300 hover:shadow-lg;
   }
   
   .health-button {
@@ -100,14 +100,14 @@
   }
   
   .severity-mild {
-    @apply text-health-mild font-medium;
+    @apply text-health-mild dark:text-green-400 font-medium;
   }
   
   .severity-moderate {
-    @apply text-health-moderate font-medium;
+    @apply text-health-moderate dark:text-yellow-400 font-medium;
   }
   
   .severity-severe {
-    @apply text-health-severe font-medium;
+    @apply text-health-severe dark:text-red-400 font-medium;
   }
 }
