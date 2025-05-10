@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { HistoryDashboard } from "@/components/user/HistoryDashboard";
 import { DiagnosisResult } from "@/types/health";
-import { useToast } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock history data for demonstration
 const MOCK_HISTORY: DiagnosisResult[] = [

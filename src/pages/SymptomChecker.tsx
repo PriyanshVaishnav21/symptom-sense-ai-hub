@@ -4,7 +4,7 @@ import { SymptomForm } from "@/components/symptom-checker/SymptomForm";
 import { DiagnosisResults } from "@/components/symptom-checker/DiagnosisResults";
 import { DiagnosisResult } from "@/types/health";
 import { getMockDiagnosis } from "@/services/mockHealthData";
-import { useToast } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
 import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 
 const SymptomChecker = () => {

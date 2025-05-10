@@ -4,7 +4,7 @@ import { PillImageUploader } from "@/components/pill-analyzer/PillImageUploader"
 import { PillAnalysisResult as PillResultComponent } from "@/components/pill-analyzer/PillAnalysisResult";
 import { PillAnalysisResult } from "@/types/health";
 import { getMockPillAnalysis } from "@/services/mockHealthData";
-import { useToast } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
 
 const PillAnalyzer = () => {
   const [isLoading, setIsLoading] = useState(false);
