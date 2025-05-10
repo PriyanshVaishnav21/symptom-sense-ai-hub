@@ -1,63 +1,54 @@
+
 import { useState, useEffect } from "react";
 import { HistoryDashboard } from "@/components/user/HistoryDashboard";
 import { DiagnosisResult } from "@/types/health";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock history data for demonstration
-const MOCK_HISTORY: DiagnosisResult[] = [
-  {
-    id: "1",
-    conditionName: "Tension headache",
-    confidenceScore: 85,
-    description: "Tension headaches are the most common type of headache and can cause mild to moderate pain in your head, neck, and behind your eyes.",
-    severity: "mild",
-    advice: "Rest in a quiet, dark room. Try over-the-counter pain relievers like acetaminophen or ibuprofen. Apply a cold compress to your forehead.",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() // 2 days ago
-  },
-  {
-    id: "2",
-    conditionName: "Common cold",
-    confidenceScore: 78,
-    description: "A viral infection of the upper respiratory tract, including the nose and throat.",
-    severity: "mild",
-    advice: "Get plenty of rest. Stay hydrated. Use over-the-counter fever reducers like acetaminophen or ibuprofen.",
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days ago
-  },
-  {
-    id: "3",
-    conditionName: "Possible angina",
-    confidenceScore: 65,
-    description: "Angina is chest pain caused by reduced blood flow to the heart muscles.",
-    severity: "severe",
-    advice: "Seek immediate medical attention. This could be a sign of a serious heart condition that requires prompt evaluation.",
-    createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString() // 14 days ago
-  }
-];
+import { getUserHealthHistory, deleteHealthResult } from "@/services/healthService";
+import { useAuth } from "@/contexts/AuthContext";
 
 const History = () => {
   const [history, setHistory] = useState<DiagnosisResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
-    // Simulate API call to fetch history
-    const fetchHistory = () => {
-      setTimeout(() => {
-        setHistory(MOCK_HISTORY);
+    const fetchHistory = async () => {
+      try {
+        if (user) {
+          const data = await getUserHealthHistory();
+          setHistory(data);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch your health history. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     };
 
     fetchHistory();
-  }, []);
+  }, [user, toast]);
 
-  const handleDeleteRecord = (id: string) => {
-    setHistory(history.filter(item => item.id !== id));
-    
-    toast({
-      title: "Record deleted",
-      description: "The health record has been removed from your history.",
-    });
+  const handleDeleteRecord = async (id: string) => {
+    try {
+      await deleteHealthResult(id);
+      setHistory(history.filter(item => item.id !== id));
+      
+      toast({
+        title: "Record deleted",
+        description: "The health record has been removed from your history.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete record. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {

@@ -9,7 +9,98 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      diagnosis_history: {
+        Row: {
+          advice: string
+          condition_name: string
+          confidence_score: number
+          created_at: string
+          description: string
+          id: string
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          advice: string
+          condition_name: string
+          confidence_score: number
+          created_at?: string
+          description: string
+          id?: string
+          severity: string
+          user_id: string
+        }
+        Update: {
+          advice?: string
+          condition_name?: string
+          confidence_score?: number
+          created_at?: string
+          description?: string
+          id?: string
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_feedback: {
+        Row: {
+          comments: string | null
+          created_at: string
+          diagnosis_id: string
+          id: string
+          is_helpful: boolean
+          user_id: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          diagnosis_id: string
+          id?: string
+          is_helpful: boolean
+          user_id: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          diagnosis_id?: string
+          id?: string
+          is_helpful?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_feedback_diagnosis_id_fkey"
+            columns: ["diagnosis_id"]
+            isOneToOne: false
+            referencedRelation: "diagnosis_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

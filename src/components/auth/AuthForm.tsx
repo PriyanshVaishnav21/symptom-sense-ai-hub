@@ -1,43 +1,44 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, FormEvent } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
-type AuthFormProps = {
+interface AuthFormProps {
   onSuccess: () => void;
-};
+}
 
 export function AuthForm({ onSuccess }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const { signIn, signUp } = useAuth();
+  const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
-      // TODO: Implement Supabase login
-      console.log("Logging in with:", email, password);
+      const { error } = await signIn(email, password);
       
-      // Simulate successful login
-      setTimeout(() => {
-        toast({
-          title: "Success!",
-          description: "You have successfully logged in.",
-        });
-        onSuccess();
-      }, 1500);
-    } catch (error) {
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "You have successfully signed in.",
+      });
+      
+      onSuccess();
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to login. Please try again.",
+        description: error.message || "Failed to sign in. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -45,26 +46,25 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
-      // TODO: Implement Supabase signup
-      console.log("Signing up with:", email, password, name);
+      const { error } = await signUp(email, password, name);
       
-      // Simulate successful signup
-      setTimeout(() => {
-        toast({
-          title: "Account created!",
-          description: "Your account has been created successfully.",
-        });
-        onSuccess();
-      }, 1500);
-    } catch (error) {
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Your account has been created. Please check your email for verification.",
+      });
+      
+      onSuccess();
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to create account. Please try again.",
+        description: error.message || "Failed to create account. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -73,36 +73,36 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
   };
 
   return (
-    <Tabs defaultValue="login" className="w-full max-w-md">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="login">Login</TabsTrigger>
-        <TabsTrigger value="signup">Sign Up</TabsTrigger>
-      </TabsList>
-      <TabsContent value="login">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Login</CardTitle>
-            <CardDescription>
-              Enter your email below to login to your account
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleLogin}>
-            <CardContent className="space-y-4">
+    <Card className="w-full">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl text-health-primary">Welcome to Health AI</CardTitle>
+        <CardDescription>
+          Enter your email and password to access your health dashboard
+        </CardDescription>
+      </CardHeader>
+      <Tabs defaultValue="signin">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="signin">Sign In</TabsTrigger>
+          <TabsTrigger value="signup">Sign Up</TabsTrigger>
+        </TabsList>
+        <TabsContent value="signin">
+          <form onSubmit={handleSignIn}>
+            <CardContent className="space-y-4 pt-4">
               <div className="space-y-2">
-                <Label htmlFor="login-email">Email</Label>
+                <Label htmlFor="email-signin">Email</Label>
                 <Input 
-                  id="login-email" 
+                  id="email-signin" 
                   type="email" 
-                  placeholder="m@example.com" 
+                  placeholder="your@email.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="login-password">Password</Label>
+                <Label htmlFor="password-signin">Password</Label>
                 <Input 
-                  id="login-password" 
+                  id="password-signin" 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -111,27 +111,23 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full bg-health-primary" disabled={isLoading}>
-                {isLoading ? "Processing..." : "Login"}
+              <Button 
+                type="submit" 
+                className="w-full bg-health-primary" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
             </CardFooter>
           </form>
-        </Card>
-      </TabsContent>
-      <TabsContent value="signup">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Create an account</CardTitle>
-            <CardDescription>
-              Enter your information to create an account
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSignup}>
-            <CardContent className="space-y-4">
+        </TabsContent>
+        <TabsContent value="signup">
+          <form onSubmit={handleSignUp}>
+            <CardContent className="space-y-4 pt-4">
               <div className="space-y-2">
-                <Label htmlFor="signup-name">Name</Label>
+                <Label htmlFor="name">Full Name</Label>
                 <Input 
-                  id="signup-name" 
+                  id="name" 
                   placeholder="John Doe" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -139,20 +135,20 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signup-email">Email</Label>
+                <Label htmlFor="email-signup">Email</Label>
                 <Input 
-                  id="signup-email" 
+                  id="email-signup" 
                   type="email" 
-                  placeholder="m@example.com" 
+                  placeholder="your@email.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signup-password">Password</Label>
+                <Label htmlFor="password-signup">Password</Label>
                 <Input 
-                  id="signup-password" 
+                  id="password-signup" 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -161,13 +157,17 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full bg-health-primary" disabled={isLoading}>
-                {isLoading ? "Creating account..." : "Create account"}
+              <Button 
+                type="submit" 
+                className="w-full bg-health-primary" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </CardFooter>
           </form>
-        </Card>
-      </TabsContent>
-    </Tabs>
+        </TabsContent>
+      </Tabs>
+    </Card>
   );
 }

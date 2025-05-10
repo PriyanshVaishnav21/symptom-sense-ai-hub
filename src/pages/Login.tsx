@@ -1,9 +1,18 @@
 
 import { AuthForm } from "@/components/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  
+  useEffect(() => {
+    if (user && !loading) {
+      navigate("/");
+    }
+  }, [user, loading, navigate]);
   
   const handleAuthSuccess = () => {
     navigate("/");
