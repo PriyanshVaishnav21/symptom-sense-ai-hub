@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 type AuthContextType = {
   session: Session | null;
   user: User | null;
+  userName: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, name: string) => Promise<{ error: any }>;
@@ -16,6 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,6 +27,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
+        
+        // Get user name from user metadata if available
+        if (currentSession?.user) {
+          const metadata = currentSession.user.user_metadata;
+          const name = metadata?.name || metadata?.full_name || null;
+          setUserName(name);
+        } else {
+          setUserName(null);
+        }
       }
     );
 
@@ -32,6 +43,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
+      
+      // Get user name from user metadata if available
+      if (currentSession?.user) {
+        const metadata = currentSession.user.user_metadata;
+        const name = metadata?.name || metadata?.full_name || null;
+        setUserName(name);
+      }
+      
       setLoading(false);
     });
 
@@ -65,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const value = {
     session,
     user,
+    userName,
     loading,
     signIn,
     signUp,

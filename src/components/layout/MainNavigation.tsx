@@ -76,6 +76,7 @@ export function MainNavigation({ isAuthenticated, onSignOut, userName }: MainNav
           {isAuthenticated ? (
             <div className="hidden md:flex items-center gap-2">
               <Avatar>
+                <AvatarImage src="/lovable-uploads/d606be39-54c2-4ab5-b701-8350b6f5dd19.png" alt="Doctor icon" />
                 <AvatarFallback>{getUserInitials()}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
@@ -135,6 +136,7 @@ export function MainNavigation({ isAuthenticated, onSignOut, userName }: MainNav
                     <>
                       <div className="flex items-center gap-2 mb-4">
                         <Avatar>
+                          <AvatarImage src="/lovable-uploads/d606be39-54c2-4ab5-b701-8350b6f5dd19.png" alt="Doctor icon" />
                           <AvatarFallback>{getUserInitials()}</AvatarFallback>
                         </Avatar>
                         <span className="font-medium dark:text-white">{userName || "User"}</span>
