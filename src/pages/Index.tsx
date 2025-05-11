@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -233,7 +232,7 @@ const Index = () => {
               </Link>
               {!isAuthenticated && (
                 <Link to="/login">
-                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-health-primary dark:border-gray-900 dark:text-gray-900 dark:hover:bg-gray-900 dark:hover:text-white">
+                  <Button size="lg" className="bg-white text-health-primary hover:bg-gray-100 hover:text-health-primary border-white dark:bg-gray-900 dark:text-white">
                     Create an Account
                   </Button>
                 </Link>
