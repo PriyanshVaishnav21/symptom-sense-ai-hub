@@ -1,7 +1,19 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import OpenAI from "https://esm.sh/openai@4.20.1";
-import { DiagnosisResult, SeverityLevel } from "../../../src/types/health";
+
+// Define types directly in the edge function instead of importing
+type SeverityLevel = "mild" | "moderate" | "severe";
+
+type DiagnosisResult = {
+  id: string;
+  conditionName: string;
+  confidenceScore: number; // 0-100
+  description: string;
+  severity: SeverityLevel;
+  advice: string;
+  createdAt: Date | string;
+};
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
