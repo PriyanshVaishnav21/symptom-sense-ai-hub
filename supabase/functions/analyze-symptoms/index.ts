@@ -48,6 +48,8 @@ serve(async (req) => {
       ? `Patient description: ${description}. ` 
       : '';
 
+    console.log(`Analyzing symptoms: ${symptomsText}${descriptionText}`);
+
     // Analyze the symptoms using OpenAI's GPT model
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -66,12 +68,35 @@ serve(async (req) => {
     
     // Extract the analysis result
     const analysisContent = response.choices[0].message.content;
-    let analysisResults: { conditions: DiagnosisResult[] };
+    let analysisResults;
     
     try {
       analysisResults = JSON.parse(analysisContent);
+      
+      // Check if the conditions array exists
+      if (!analysisResults.conditions || !Array.isArray(analysisResults.conditions)) {
+        // If not in expected format, try to structure it correctly
+        if (Array.isArray(analysisResults)) {
+          // If the result is directly an array, use it
+          analysisResults = { conditions: analysisResults };
+        } else {
+          // Create a default structure with whatever we received
+          analysisResults = { 
+            conditions: [
+              {
+                conditionName: "Unknown condition",
+                confidenceScore: 50,
+                severity: "moderate",
+                description: "Could not properly analyze the provided symptoms.",
+                advice: "Please consult with a healthcare professional."
+              }
+            ]
+          };
+        }
+      }
     } catch (e) {
       console.error('Failed to parse OpenAI response:', e);
+      console.log('Raw response content:', analysisContent);
       throw new Error('Failed to parse diagnosis results');
     }
 
