@@ -3,10 +3,9 @@ import { useState } from "react";
 import { SymptomForm } from "@/components/symptom-checker/SymptomForm";
 import { DiagnosisResults } from "@/components/symptom-checker/DiagnosisResults";
 import { DiagnosisResult, SeverityLevel } from "@/types/health";
-import { getMockDiagnosis } from "@/services/mockHealthData";
 import { useToast } from "@/hooks/use-toast";
 import { FeedbackForm } from "@/components/feedback/FeedbackForm";
-import { saveHealthResult, saveFeedback } from "@/services/healthService";
+import { saveHealthResult, saveFeedback, analyzeSymptoms } from "@/services/healthService";
 
 const SymptomChecker = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,8 +18,10 @@ const SymptomChecker = () => {
     setIsLoading(true);
     
     try {
-      // Get mock diagnosis for UI demonstration
-      const results = await getMockDiagnosis(symptoms, description);
+      // Use the OpenAI API through our edge function instead of mock data
+      console.log("Submitting symptoms to AI analysis:", { symptoms, description });
+      const results = await analyzeSymptoms(symptoms, description);
+      console.log("Analysis results:", results);
       setDiagnosisResults(results);
       
       // Check for severe conditions
@@ -33,6 +34,7 @@ const SymptomChecker = () => {
         });
       }
     } catch (error) {
+      console.error("Error analyzing symptoms:", error);
       toast({
         title: "Error",
         description: "Failed to analyze symptoms. Please try again.",

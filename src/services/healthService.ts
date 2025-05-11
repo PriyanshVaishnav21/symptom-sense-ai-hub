@@ -89,6 +89,26 @@ export const analyzePill = async (imageData: string): Promise<PillAnalysisResult
   }
 };
 
+export const analyzeSymptoms = async (symptoms: string[], description: string): Promise<DiagnosisResult[]> => {
+  try {
+    console.log('Calling analyze-symptoms edge function with:', { symptoms, description });
+    const { data, error } = await supabase.functions.invoke('analyze-symptoms', {
+      body: { symptoms, description },
+    });
+
+    if (error) {
+      console.error('Edge function error:', error);
+      throw error;
+    }
+    
+    console.log('Received response from analyze-symptoms:', data);
+    return data as DiagnosisResult[];
+  } catch (error) {
+    console.error('Error analyzing symptoms:', error);
+    throw error;
+  }
+};
+
 export const saveFeedback = async (feedback: Omit<UserFeedback, 'id' | 'createdAt'>) => {
   try {
     // Get the current user's ID
