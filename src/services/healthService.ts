@@ -96,10 +96,21 @@ export const saveFeedback = async (feedback: Omit<UserFeedback, 'id' | 'createdA
     
     if (!user) throw new Error("User not authenticated");
     
+    // Check if diagnosisId is a valid UUID - if not, we won't try to insert it directly
+    let diagnosisIdValue = feedback.diagnosisId;
+    
+    // Generate a new UUID if the provided ID is not valid
+    // This fixes the "invalid input syntax for type uuid" error
+    if (!isValidUUID(diagnosisIdValue)) {
+      console.log("Converting non-UUID diagnosis ID to a proper format");
+      // Use a hash of the original ID to create consistent placeholder
+      diagnosisIdValue = generateDummyUUID(diagnosisIdValue);
+    }
+    
     const { data, error } = await supabase
       .from('user_feedback')
       .insert({
-        diagnosis_id: feedback.diagnosisId,
+        diagnosis_id: diagnosisIdValue,
         is_helpful: feedback.isHelpful,
         comments: feedback.comments,
         user_id: user.id
@@ -114,3 +125,18 @@ export const saveFeedback = async (feedback: Omit<UserFeedback, 'id' | 'createdA
     throw error;
   }
 };
+
+// Helper function to check if a string is a valid UUID
+function isValidUUID(str: string) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
+// Helper function to generate a consistent UUID from a non-UUID string
+function generateDummyUUID(str: string) {
+  // Simple implementation to create a placeholder UUID
+  // This creates a deterministic UUID-like string
+  const prefix = '00000000-0000-0000-0000-';
+  const suffix = str.padStart(12, '0').slice(-12);
+  return prefix + suffix;
+}

@@ -5,7 +5,9 @@ import { DiagnosisResult, SeverityLevel } from "@/types/health";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, ThumbsDown, ThumbsUp } from "lucide-react";
+import { AlertTriangle, ThumbsDown, ThumbsUp, Pill, Info, Heart, Activity } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 type DiagnosisResultsProps = {
   results: DiagnosisResult[];
@@ -39,20 +41,54 @@ export function DiagnosisResults({ results, onSave, onFeedback, onReset }: Diagn
 
   const getSeverityTextClass = (severity: SeverityLevel): string => {
     switch (severity) {
-      case "mild": return "severity-mild";
-      case "moderate": return "severity-moderate";
-      case "severe": return "severity-severe";
-      default: return "severity-mild";
+      case "mild": return "text-health-mild";
+      case "moderate": return "text-health-moderate";
+      case "severe": return "text-health-severe";
+      default: return "text-health-mild";
     }
   };
 
   // Sort results by confidence score (highest first)
   const sortedResults = [...results].sort((a, b) => b.confidenceScore - a.confidenceScore);
 
+  // Mock data for additional disease details
+  const getDetailedInfo = (conditionName: string, severity: SeverityLevel) => {
+    // This would be dynamically fetched from a database in a real app
+    const detailedInfo = {
+      causes: [
+        "Genetic factors",
+        "Environmental triggers",
+        "Lifestyle choices such as diet and exercise",
+        "Pre-existing medical conditions"
+      ],
+      treatments: [
+        severity === "severe" ? "Immediate medical attention" : "Rest and hydration",
+        severity === "mild" ? "Over-the-counter pain relievers" : "Prescription medication",
+        "Lifestyle adjustments",
+        "Regular monitoring"
+      ],
+      medications: [
+        {
+          name: severity === "severe" ? "Prescription strength medication" : "Over-the-counter options",
+          dosage: "As directed by healthcare provider",
+          frequency: "Varies based on condition severity"
+        }
+      ],
+      selfCare: [
+        "Maintain proper hydration",
+        "Ensure adequate rest",
+        "Monitor symptoms for changes",
+        "Follow dietary recommendations"
+      ]
+    };
+    
+    return detailedInfo;
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {highestSeverity === "severe" && (
-        <Alert className="border-health-severe bg-red-50">
+        <Alert className="border-health-severe bg-red-50 dark:bg-red-950 dark:border-red-700">
           <AlertTriangle className="h-5 w-5 text-health-severe" />
           <AlertTitle className="text-health-severe font-bold">Urgent Medical Attention Advised</AlertTitle>
           <AlertDescription>
@@ -63,7 +99,7 @@ export function DiagnosisResults({ results, onSave, onFeedback, onReset }: Diagn
       )}
 
       {highestSeverity === "moderate" && (
-        <Alert className="border-health-moderate bg-yellow-50">
+        <Alert className="border-health-moderate bg-yellow-50 dark:bg-yellow-950 dark:border-yellow-700">
           <AlertTriangle className="h-5 w-5 text-health-moderate" />
           <AlertTitle className="text-health-moderate font-bold">Medical Consultation Recommended</AlertTitle>
           <AlertDescription>
@@ -74,65 +110,133 @@ export function DiagnosisResults({ results, onSave, onFeedback, onReset }: Diagn
 
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-2xl text-health-primary">Possible Conditions</CardTitle>
+          <CardTitle className="text-2xl text-health-primary dark:text-health-secondary">Possible Conditions</CardTitle>
           <CardDescription>
             Based on your symptoms, these are potential conditions to consider. 
             This is not a diagnosis and should not replace professional medical advice.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {sortedResults.map((result) => (
-            <div key={result.id} className="space-y-3 p-4 border rounded-lg">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">{result.conditionName}</h3>
-                <Badge className={`${getSeverityColor(result.severity)} text-white`}>
-                  {result.severity.charAt(0).toUpperCase() + result.severity.slice(1)}
-                </Badge>
-              </div>
-              
-              <div className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span>Confidence</span>
-                  <span className="font-medium">{result.confidenceScore}%</span>
+          {sortedResults.map((result) => {
+            const detailedInfo = getDetailedInfo(result.conditionName, result.severity);
+            
+            return (
+              <div key={result.id} className="space-y-3 p-4 border rounded-lg dark:border-gray-700">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{result.conditionName}</h3>
+                  <Badge className={`${getSeverityColor(result.severity)} text-white`}>
+                    {result.severity.charAt(0).toUpperCase() + result.severity.slice(1)}
+                  </Badge>
                 </div>
-                <Progress value={result.confidenceScore} max={100} className="h-2" />
-              </div>
-              
-              <p className="text-sm text-muted-foreground">{result.description}</p>
-              
-              <div>
-                <h4 className={`text-sm font-semibold mb-1 ${getSeverityTextClass(result.severity)}`}>
-                  Advice:
-                </h4>
-                <p className="text-sm">{result.advice}</p>
-              </div>
+                
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span>Confidence</span>
+                    <span className="font-medium">{result.confidenceScore}%</span>
+                  </div>
+                  <Progress value={result.confidenceScore} max={100} className="h-2" />
+                </div>
+                
+                <p className="text-sm text-muted-foreground">{result.description}</p>
+                
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="detailed-information">
+                    <AccordionTrigger className="text-sm font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <Info className="h-4 w-4" />
+                        Detailed Information
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-4 text-sm">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <AlertTriangle className="h-4 w-4 text-amber-500" />
+                          <h4 className="font-semibold">Possible Causes</h4>
+                        </div>
+                        <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                          {detailedInfo.causes.map((cause, i) => (
+                            <li key={i}>{cause}</li>
+                          ))}
+                        </ul>
+                      </div>
 
-              <div className="flex space-x-2 pt-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs"
-                  onClick={() => onFeedback(result.id, true)}
-                >
-                  <ThumbsUp className="h-3 w-3 mr-1" /> Helpful
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-xs"
-                  onClick={() => onFeedback(result.id, false)}
-                >
-                  <ThumbsDown className="h-3 w-3 mr-1" /> Not Helpful
-                </Button>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Activity className="h-4 w-4 text-blue-500" />
+                          <h4 className="font-semibold">Recommended Treatments</h4>
+                        </div>
+                        <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                          {detailedInfo.treatments.map((treatment, i) => (
+                            <li key={i}>{treatment}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Pill className="h-4 w-4 text-green-500" />
+                          <h4 className="font-semibold">Medications</h4>
+                        </div>
+                        {detailedInfo.medications.map((medication, i) => (
+                          <div key={i} className="ml-5 p-2 bg-muted/30 rounded-md">
+                            <p className="font-medium">{medication.name}</p>
+                            <p className="text-xs text-muted-foreground">Dosage: {medication.dosage}</p>
+                            <p className="text-xs text-muted-foreground">Frequency: {medication.frequency}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Heart className="h-4 w-4 text-red-500" />
+                          <h4 className="font-semibold">Self-Care Recommendations</h4>
+                        </div>
+                        <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                          {detailedInfo.selfCare.map((care, i) => (
+                            <li key={i}>{care}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                
+                <Separator className="my-2" />
+                
+                <div>
+                  <h4 className={`text-sm font-semibold mb-1 ${getSeverityTextClass(result.severity)}`}>
+                    Advice:
+                  </h4>
+                  <p className="text-sm">{result.advice}</p>
+                </div>
+
+                <div className="flex space-x-2 pt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => onFeedback(result.id, true)}
+                  >
+                    <ThumbsUp className="h-3 w-3 mr-1" /> Helpful
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-xs"
+                    onClick={() => onFeedback(result.id, false)}
+                  >
+                    <ThumbsDown className="h-3 w-3 mr-1" /> Not Helpful
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </CardContent>
         <CardFooter className="flex justify-between">
           <Button variant="outline" onClick={onReset}>
             Check New Symptoms
           </Button>
-          <Button onClick={onSave} className="bg-health-primary">
+          <Button onClick={onSave} className="bg-health-primary dark:bg-health-secondary">
             Save Results
           </Button>
         </CardFooter>

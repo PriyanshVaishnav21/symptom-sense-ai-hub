@@ -27,29 +27,34 @@ const Index = () => {
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
-              <div className="space-y-4">
-                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-health-dark dark:text-white">
+              <div className="flex flex-col items-center lg:items-start">
+                <img 
+                  src="/lovable-uploads/0c1f69d9-8fbe-47ee-8b5c-83db03030f36.png" 
+                  alt="SymptomSense Logo" 
+                  className="h-36 mb-6"
+                />
+                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-health-dark dark:text-white text-center lg:text-left">
                   AI-Powered Health Symptom Checker
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-300">
+                <p className="text-xl text-gray-600 dark:text-gray-300 mt-4 text-center lg:text-left">
                   Get quick insights about your symptoms and receive personalized health advice using artificial intelligence.
                 </p>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link to="/symptom-checker">
-                  <Button className="text-lg px-6 py-6 bg-health-primary hover:bg-health-primary/90 dark:bg-health-secondary dark:text-gray-900">
+                  <Button className="text-lg px-6 py-6 bg-health-primary hover:bg-health-primary/90 dark:bg-health-secondary dark:text-gray-900 w-full">
                     Check Your Symptoms
                   </Button>
                 </Link>
                 <Link to="/pill-analyzer">
-                  <Button className="text-lg px-6 py-6" variant="outline">
+                  <Button className="text-lg px-6 py-6 w-full" variant="outline">
                     Identify Your Medication
                   </Button>
                 </Link>
               </div>
               
-              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 justify-center lg:justify-start flex-wrap">
                 <span>✓ Private & Secure</span>
                 <span>✓ AI-Powered</span>
                 <span>✓ Free to Use</span>
@@ -245,23 +250,13 @@ const Index = () => {
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <div className="text-health-primary dark:text-health-secondary flex items-center gap-1 mb-4">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  className="h-6 w-6"
-                >
-                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                  <path d="M12 13v8" />
-                  <path d="M8 9h8" />
-                  <path d="M12 5v4" />
-                </svg>
-                <span className="font-bold text-lg">SymptomSense</span>
+              <div className="flex items-center gap-2 mb-4">
+                <img 
+                  src="/lovable-uploads/0c1f69d9-8fbe-47ee-8b5c-83db03030f36.png" 
+                  alt="SymptomSense Logo" 
+                  className="h-8" 
+                />
+                <span className="font-bold text-lg text-health-primary dark:text-health-secondary">SymptomSense</span>
               </div>
               <p className="text-gray-600 dark:text-gray-300 text-sm">
                 AI-powered health symptom checker providing quick insights and personalized health advice.
