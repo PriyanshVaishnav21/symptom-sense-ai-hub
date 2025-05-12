@@ -6,13 +6,13 @@ FROM node:20-alpine as build
 WORKDIR /app
 
 # Copy package.json and package-lock.json
-COPY frontend/package*.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy the frontend code
-COPY frontend/ ./
+# Copy the rest of the application code
+COPY . .
 
 # Build the application
 RUN npm run build
