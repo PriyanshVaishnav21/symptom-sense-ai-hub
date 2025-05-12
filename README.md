@@ -1,52 +1,20 @@
 
-# Symptom Sense AI Hub
+# Symptom Sense AI
 
-A web application that uses AI to analyze symptoms and provide potential diagnoses.
+This application consists of two main components:
+- Frontend: React application for symptom checking and medication identification
+- Backend: Supabase edge functions for AI-powered analysis
 
 ## Project Structure
-
-The project is separated into frontend and backend directories:
-
-- `frontend/`: Contains the React application
-- `backend/`: Contains Supabase edge functions and other backend code
+- `/frontend`: Contains the React application
+- `/backend`: Contains Supabase edge functions and database configuration
+- `/nginx.conf`: Nginx configuration for hosting the frontend
+- `/Dockerfile`: Docker configuration for building and deploying the application
+- `/deploy.sh`: Deployment script for both frontend and backend
 
 ## Development
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### Backend (Supabase Functions)
-
-```bash
-cd backend
-# Deploy functions using Supabase CLI
-supabase functions deploy analyze-symptoms
-supabase functions deploy analyze-pill
-```
+- For frontend development, navigate to the `/frontend` directory and run `npm run dev`
+- For backend development, use Supabase CLI to develop and deploy edge functions
 
 ## Deployment
-
-You can use the provided deploy script:
-
-```bash
-chmod +x deploy.sh
-./deploy.sh
-```
-
-Or build the Docker image manually:
-
-```bash
-docker build -t symptom-sense-ai-hub .
-docker run -p 80:80 symptom-sense-ai-hub
-```
-
-## Environment Variables
-
-For local development and production, make sure to set:
-
-- `OPENAI_API_KEY` - Required for symptom analysis
+Run `./deploy.sh` to deploy both frontend and backend components.
