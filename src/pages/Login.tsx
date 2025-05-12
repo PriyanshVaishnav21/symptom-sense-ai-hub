@@ -1,8 +1,8 @@
 
-import { AuthForm } from "@/components/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
+import { AuthForm } from "../components/auth/AuthForm";
 
 const Login = () => {
   const navigate = useNavigate();
