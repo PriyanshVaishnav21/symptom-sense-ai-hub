@@ -25,23 +25,23 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-health-primary/10 to-health-secondary/5 dark:from-health-primary/5 dark:to-health-secondary/5 dark:bg-gray-800">
         <div className="container mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 gap-12 items-center">
             <div className="space-y-8">
-              <div className="flex flex-col items-center lg:items-start">
+              <div className="flex flex-col items-center">
                 <img 
                   src="/lovable-uploads/0c1f69d9-8fbe-47ee-8b5c-83db03030f36.png" 
                   alt="SymptomSense Logo" 
                   className="h-36 mb-6"
                 />
-                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-health-dark dark:text-white text-center lg:text-left">
+                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-health-dark dark:text-white text-center">
                   AI-Powered Health Symptom Checker
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-300 mt-4 text-center lg:text-left">
+                <p className="text-xl text-gray-600 dark:text-gray-300 mt-4 text-center">
                   Get quick insights about your symptoms and receive personalized health advice using artificial intelligence.
                 </p>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/symptom-checker">
                   <Button className="text-lg px-6 py-6 bg-health-primary hover:bg-health-primary/90 dark:bg-health-secondary dark:text-gray-900 w-full">
                     Check Your Symptoms
@@ -54,19 +54,11 @@ const Index = () => {
                 </Link>
               </div>
               
-              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 justify-center lg:justify-start flex-wrap">
+              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 justify-center flex-wrap">
                 <span>✓ Private & Secure</span>
                 <span>✓ AI-Powered</span>
                 <span>✓ Free to Use</span>
               </div>
-            </div>
-            
-            <div className="hidden lg:block">
-              <img 
-                src="/medical-hero-image.jpg" 
-                alt="Health Symptom Checker" 
-                className="w-full h-auto rounded-lg shadow-lg" 
-              />
             </div>
           </div>
         </div>

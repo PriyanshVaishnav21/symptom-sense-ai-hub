@@ -34,9 +34,17 @@ serve(async (req) => {
       throw new Error('Either symptoms or description is required');
     }
 
+    // Get OpenAI API key from environment
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    
+    if (!openAIApiKey) {
+      console.error('OPENAI_API_KEY environment variable is not set');
+      throw new Error('OpenAI API key is not configured');
+    }
+
     // Initialize OpenAI client
     const openai = new OpenAI({
-      apiKey: Deno.env.get('OPENAI_API_KEY'),
+      apiKey: openAIApiKey,
     });
 
     // Prepare the prompt for OpenAI
@@ -50,13 +58,35 @@ serve(async (req) => {
 
     console.log(`Analyzing symptoms: ${symptomsText}${descriptionText}`);
 
+    // Enhanced prompt to ensure more accurate medical analysis
+    const systemPrompt = `
+      You are an AI medical assistant that analyzes symptoms to suggest possible conditions.
+      For each condition, provide a detailed diagnosis including:
+      - condition name (be specific with medical terminology)
+      - confidence score (1-100 based on how well symptoms match)
+      - severity (mild, moderate, or severe)
+      - detailed description of the condition
+      - specific medical advice
+      
+      Structure your response as a JSON object with a 'conditions' array containing objects with these fields:
+      - conditionName (string)
+      - confidenceScore (number between 1-100)
+      - severity (string: either "mild", "moderate", or "severe")
+      - description (string)
+      - advice (string)
+      
+      Give 2-3 possible conditions based on the symptoms, from most to least likely.
+      Be thorough and clinically accurate in your analysis.
+      ONLY return valid JSON. Do not include any explanatory text outside the JSON structure.
+    `;
+
     // Analyze the symptoms using OpenAI's GPT model
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "You are an AI medical assistant that analyzes symptoms to suggest possible conditions. For each condition, provide a detailed diagnosis including condition name, confidence score (1-100), severity (mild, moderate, severe), description, and medical advice. Structure your response as a JSON array with objects containing these fields: conditionName, confidenceScore, severity, description, advice. Give 2-3 possible conditions based on the symptoms. Do not include any other text in your response besides the JSON array."
+          content: systemPrompt
         },
         {
           role: "user",
@@ -64,40 +94,82 @@ serve(async (req) => {
         }
       ],
       response_format: { type: "json_object" },
+      temperature: 0.2, // Lower temperature for more predictable, medically-focused responses
     });
     
     // Extract the analysis result
     const analysisContent = response.choices[0].message.content;
+    console.log("Raw OpenAI response:", analysisContent);
+    
     let analysisResults;
     
     try {
+      // First, try to parse the response as JSON
       analysisResults = JSON.parse(analysisContent);
       
-      // Check if the conditions array exists
+      // Check if the conditions array exists and is properly structured
       if (!analysisResults.conditions || !Array.isArray(analysisResults.conditions)) {
-        // If not in expected format, try to structure it correctly
+        // If not in expected format, try to restructure it
         if (Array.isArray(analysisResults)) {
           // If the result is directly an array, use it
           analysisResults = { conditions: analysisResults };
         } else {
-          // Create a default structure with whatever we received
-          analysisResults = { 
-            conditions: [
-              {
-                conditionName: "Unknown condition",
-                confidenceScore: 50,
-                severity: "moderate",
-                description: "Could not properly analyze the provided symptoms.",
-                advice: "Please consult with a healthcare professional."
-              }
-            ]
-          };
+          // Look for any array in the response that might contain conditions
+          const possibleConditionsArray = Object.values(analysisResults).find(
+            value => Array.isArray(value) && value.length > 0 && 
+            value[0].conditionName && value[0].severity
+          );
+          
+          if (possibleConditionsArray) {
+            analysisResults = { conditions: possibleConditionsArray };
+          } else {
+            // Create a default structure if we can't find valid conditions
+            analysisResults = { 
+              conditions: [
+                {
+                  conditionName: "Unknown condition",
+                  confidenceScore: 50,
+                  severity: "moderate",
+                  description: "Could not properly analyze the provided symptoms.",
+                  advice: "Please consult with a healthcare professional."
+                }
+              ]
+            };
+          }
         }
       }
+      
+      // Validate that each condition has the required fields
+      analysisResults.conditions = analysisResults.conditions.map(condition => {
+        // Ensure all required fields are present
+        return {
+          conditionName: condition.conditionName || "Unknown condition",
+          confidenceScore: typeof condition.confidenceScore === 'number' ? 
+            condition.confidenceScore : 50,
+          severity: ['mild', 'moderate', 'severe'].includes(condition.severity) ? 
+            condition.severity : "moderate",
+          description: condition.description || 
+            "No detailed description available for this condition.",
+          advice: condition.advice || "Please consult with a healthcare professional."
+        };
+      });
+      
     } catch (e) {
       console.error('Failed to parse OpenAI response:', e);
       console.log('Raw response content:', analysisContent);
-      throw new Error('Failed to parse diagnosis results');
+      
+      // Instead of throwing, return a fallback diagnosis
+      analysisResults = { 
+        conditions: [
+          {
+            conditionName: "Analysis Failed",
+            confidenceScore: 0,
+            severity: "moderate",
+            description: "Our system encountered an error analyzing your symptoms.",
+            advice: "Please try again or consult with a healthcare professional."
+          }
+        ]
+      };
     }
 
     // Add IDs and timestamps to each result
