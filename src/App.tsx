@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import SymptomChecker from "./pages/SymptomChecker";
 import PillAnalyzer from "./pages/PillAnalyzer";
 import History from "./pages/History";
+import MedicalReports from "./pages/MedicalReports";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -48,6 +49,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <History />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/medical-reports" 
+                element={
+                  <ProtectedRoute>
+                    <MedicalReports />
                   </ProtectedRoute>
                 } 
               />

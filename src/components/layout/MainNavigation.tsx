@@ -1,164 +1,178 @@
-
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { ThemeToggle } from "../ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
+import { 
+  Heart, 
+  Pill, 
+  ClipboardList, 
+  LogOut, 
+  User, 
+  Menu, 
+  X, 
+  FileText 
+} from "lucide-react";
 
-type MainNavigationProps = {
-  isAuthenticated: boolean;
-  onSignOut: () => void;
-  userName?: string;
-};
+export function MainNavigation() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const location = useLocation();
+  
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
-export function MainNavigation({ isAuthenticated, onSignOut, userName }: MainNavigationProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleSignOut = () => {
-    onSignOut();
-    setIsMenuOpen(false);
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const getUserInitials = () => {
-    if (!userName) return "U";
-    return userName.split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  // Navigation links configuration
+  const navLinks = [
+    { path: "/", name: "Home", icon: <Heart className="mr-2 h-5 w-5" />, public: true },
+    { 
+      path: "/symptom-checker", 
+      name: "Symptom Checker", 
+      icon: <ClipboardList className="mr-2 h-5 w-5" />,
+      public: false
+    },
+    { 
+      path: "/pill-analyzer", 
+      name: "Pill Analyzer", 
+      icon: <Pill className="mr-2 h-5 w-5" />, 
+      public: false 
+    },
+    { 
+      path: "/history", 
+      name: "History", 
+      icon: <User className="mr-2 h-5 w-5" />, 
+      public: false 
+    },
+    { 
+      path: "/medical-reports", 
+      name: "Medical Reports", 
+      icon: <FileText className="mr-2 h-5 w-5" />, 
+      public: false 
+    },
+  ];
+
+  // Filter links based on authentication status
+  const filteredNavLinks = navLinks.filter(link => 
+    link.public || (user && !link.public)
+  );
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="border-b bg-white dark:bg-gray-900 dark:border-gray-800 sticky top-0 z-40">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="text-health-primary dark:text-health-secondary flex items-center gap-1">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="h-8 w-8"
-              >
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                <path d="M12 13v8" />
-                <path d="M8 9h8" />
-                <path d="M12 5v4" />
-              </svg>
-              <span className="font-bold text-xl sm:text-2xl tracking-tight hidden sm:block">SymptomSense</span>
-            </div>
-          </Link>
-        </div>
-        
-        <nav className="hidden md:flex items-center gap-6">
-          <Link to="/" className="text-sm font-medium hover:text-health-primary dark:text-gray-300 dark:hover:text-health-secondary">
-            Symptom Checker
-          </Link>
-          <Link to="/pill-analyzer" className="text-sm font-medium hover:text-health-primary dark:text-gray-300 dark:hover:text-health-secondary">
-            Pill Analyzer
-          </Link>
-          {isAuthenticated && (
-            <Link to="/history" className="text-sm font-medium hover:text-health-primary dark:text-gray-300 dark:hover:text-health-secondary">
-              My History
+    <header className="bg-background border-b sticky top-0 z-10">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center">
+              <img 
+                src="/doctor-icon.png" 
+                alt="Health AI Assistant" 
+                className="h-8 w-8 mr-2" 
+              />
+              <span className="font-bold text-lg">Health AI Assistant</span>
             </Link>
-          )}
-        </nav>
-        
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
+          </div>
           
-          {isAuthenticated ? (
-            <div className="hidden md:flex items-center gap-2">
-              <Avatar>
-                <AvatarImage src="/lovable-uploads/d606be39-54c2-4ab5-b701-8350b6f5dd19.png" alt="Doctor icon" />
-                <AvatarFallback>{getUserInitials()}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium dark:text-white">{userName || "User"}</span>
-                <button 
-                  onClick={onSignOut}
-                  className="text-xs text-muted-foreground text-left hover:text-health-primary dark:hover:text-health-secondary"
-                >
-                  Sign out
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="hidden md:block">
-              <Link to="/login">
-                <Button className="bg-health-primary dark:bg-health-secondary dark:text-gray-900">Sign in</Button>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-4">
+            {filteredNavLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive(link.path)
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-accent hover:text-accent-foreground"
+                }`}
+              >
+                {link.icon}
+                {link.name}
               </Link>
+            ))}
+            
+            <div className="flex items-center ml-4">
+              <ThemeToggle />
+              
+              {user ? (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => signOut()} 
+                  className="ml-3"
+                  title="Logout"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span className="sr-only">Logout</span>
+                </Button>
+              ) : (
+                <Link to="/login">
+                  <Button variant="default" className="ml-3">
+                    Sign in
+                  </Button>
+                </Link>
+              )}
             </div>
-          )}
+          </nav>
           
-          {/* Mobile Menu */}
-          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden">
+          {/* Mobile menu button */}
+          <div className="flex md:hidden items-center space-x-4">
+            <ThemeToggle />
+            
+            <Button variant="ghost" onClick={toggleMobileMenu} size="sm">
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
                 <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-64 dark:bg-gray-900 dark:border-gray-800">
-              <div className="flex flex-col gap-6 mt-8">
-                <Link 
-                  to="/" 
-                  className="text-lg font-medium dark:text-white" 
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Symptom Checker
-                </Link>
-                <Link 
-                  to="/pill-analyzer" 
-                  className="text-lg font-medium dark:text-white" 
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Pill Analyzer
-                </Link>
-                {isAuthenticated && (
-                  <Link 
-                    to="/history" 
-                    className="text-lg font-medium dark:text-white" 
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    My History
-                  </Link>
-                )}
-                
-                <div className="border-t dark:border-gray-700 mt-4 pt-4">
-                  {isAuthenticated ? (
-                    <>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Avatar>
-                          <AvatarImage src="/lovable-uploads/d606be39-54c2-4ab5-b701-8350b6f5dd19.png" alt="Doctor icon" />
-                          <AvatarFallback>{getUserInitials()}</AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium dark:text-white">{userName || "User"}</span>
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        onClick={handleSignOut} 
-                        className="w-full dark:border-gray-700 dark:text-white"
-                      >
-                        Sign out
-                      </Button>
-                    </>
-                  ) : (
-                    <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="w-full bg-health-primary dark:bg-health-secondary dark:text-gray-900">Sign in</Button>
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              )}
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </div>
         </div>
+        
+        {/* Mobile Navigation */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden pt-4 pb-3 border-t mt-3">
+            <div className="space-y-1">
+              {filteredNavLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+                    isActive(link.path)
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                >
+                  {link.icon}
+                  {link.name}
+                </Link>
+              ))}
+              
+              {user ? (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => signOut()} 
+                  className="flex items-center w-full px-3 py-2 text-left"
+                >
+                  <LogOut className="mr-2 h-5 w-5" />
+                  Logout
+                </Button>
+              ) : (
+                <Link to="/login" className="block">
+                  <Button variant="default" className="w-full mt-2">
+                    Sign in
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

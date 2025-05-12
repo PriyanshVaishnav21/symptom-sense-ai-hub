@@ -40,3 +40,17 @@ export type User = {
   name?: string;
   createdAt: Date | string;
 };
+
+export type MedicalReport = {
+  id: string;
+  userId: string;
+  title: string;
+  conditionName: string;
+  medications: string[];
+  description?: string;
+  startDate: Date | string;
+  endDate?: Date | string;
+  active: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+};

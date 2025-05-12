@@ -42,6 +42,48 @@ export type Database = {
         }
         Relationships: []
       }
+      medical_reports: {
+        Row: {
+          active: boolean
+          condition_name: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          medications: string[]
+          start_date: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          condition_name: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          medications?: string[]
+          start_date: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          condition_name?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          medications?: string[]
+          start_date?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
