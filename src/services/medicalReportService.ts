@@ -41,14 +41,16 @@ export const createMedicalReport = async (report: Omit<MedicalReport, 'id' | 'us
     
     if (!user) throw new Error("User not authenticated");
     
-    // Convert Date objects to ISO strings if needed
+    // Ensure dates are always strings for Supabase
     const startDate = typeof report.startDate === 'object' 
-      ? report.startDate.toISOString() 
+      ? (report.startDate as Date).toISOString() 
       : report.startDate;
       
-    const endDate = report.endDate && typeof report.endDate === 'object'
-      ? report.endDate.toISOString()
-      : report.endDate;
+    const endDate = report.endDate 
+      ? (typeof report.endDate === 'object' 
+          ? (report.endDate as Date).toISOString() 
+          : report.endDate) 
+      : null;
     
     const { data, error } = await supabase
       .from('medical_reports')
@@ -96,12 +98,12 @@ export const updateMedicalReport = async (id: string, report: Partial<Omit<Medic
     if (report.description !== undefined) updateData.description = report.description;
     if (report.startDate !== undefined) {
       updateData.start_date = typeof report.startDate === 'object'
-        ? report.startDate.toISOString()
+        ? (report.startDate as Date).toISOString()
         : report.startDate;
     }
     if (report.endDate !== undefined) {
       updateData.end_date = report.endDate && typeof report.endDate === 'object'
-        ? report.endDate.toISOString()
+        ? (report.endDate as Date).toISOString()
         : report.endDate;
     }
     if (report.active !== undefined) updateData.active = report.active;
