@@ -1,4 +1,5 @@
 
+
 import { supabase } from '@/integrations/supabase/client';
 import { MedicalReport } from '@/types/health';
 
@@ -43,7 +44,7 @@ export const createMedicalReport = async (report: Omit<MedicalReport, 'id' | 'us
     
     const { data, error } = await supabase
       .from('medical_reports')
-      .insert({
+      .insert([{
         user_id: user.id,
         title: report.title,
         condition_name: report.conditionName,
@@ -52,7 +53,7 @@ export const createMedicalReport = async (report: Omit<MedicalReport, 'id' | 'us
         start_date: report.startDate,
         end_date: report.endDate,
         active: report.active
-      })
+      }])
       .select()
       .single();
 

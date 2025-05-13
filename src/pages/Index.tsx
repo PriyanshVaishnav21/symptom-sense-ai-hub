@@ -16,11 +16,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-health-light dark:bg-gray-900">
-      <MainNavigation 
-        isAuthenticated={isAuthenticated} 
-        onSignOut={handleSignOut}
-        userName={userName || undefined} 
-      />
+      <MainNavigation />
       
       {/* Hero Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-health-primary/10 to-health-secondary/5 dark:from-health-primary/5 dark:to-health-secondary/5 dark:bg-gray-800">

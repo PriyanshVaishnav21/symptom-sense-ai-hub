@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { PillImageUploader } from "@/components/pill-analyzer/PillImageUploader";
 import { PillAnalysisResult as PillResultComponent } from "@/components/pill-analyzer/PillAnalysisResult";
@@ -49,17 +50,9 @@ const PillAnalyzer = () => {
     setAnalysisResult(null);
   };
 
-  const handleSignOut = () => {
-    // This would be handled by the auth context in a real app
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-health-light dark:bg-gray-900">
-      <MainNavigation 
-        isAuthenticated={isAuthenticated}
-        onSignOut={handleSignOut}
-        userName={userName}
-      />
+      <MainNavigation />
       
       <div className="container max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8 text-center">
