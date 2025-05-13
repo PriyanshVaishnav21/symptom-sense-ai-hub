@@ -19,7 +19,7 @@ interface ProfileFormData {
 }
 
 const UserProfile = () => {
-  const { user, userName } = useAuth();
+  const { user, userName, updateUserName } = useAuth();
   const { toast } = useToast();
   const [profileData, setProfileData] = useState<ProfileFormData>({
     name: userName || "",
@@ -46,19 +46,19 @@ const UserProfile = () => {
     if (!user) return;
     
     try {
-      const { data: pathData } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('avatar_url')
         .eq('id', user.id)
         .single();
       
-      if (pathData?.avatar_url) {
-        const { data } = await supabase.storage
+      if (data?.avatar_url) {
+        const { data: fileData } = await supabase.storage
           .from('avatars')
-          .download(pathData.avatar_url);
+          .download(data.avatar_url);
           
-        if (data) {
-          const url = URL.createObjectURL(data);
+        if (fileData) {
+          const url = URL.createObjectURL(fileData);
           setAvatarUrl(url);
         }
       }
@@ -80,13 +80,9 @@ const UserProfile = () => {
     setLoading(true);
 
     try {
-      // Update profile name in the profiles table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ name: profileData.name })
-        .eq('id', user.id);
-
-      if (profileError) throw profileError;
+      // Update profile name through our context function
+      const { error: nameError } = await updateUserName(profileData.name);
+      if (nameError) throw nameError;
 
       // If password fields are filled, update password
       if (profileData.password && profileData.password === profileData.confirmPassword) {

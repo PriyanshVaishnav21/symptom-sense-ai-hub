@@ -43,19 +43,19 @@ export function MainNavigation() {
       if (!user) return;
       
       try {
-        const { data: profileData } = await supabase
+        const { data } = await supabase
           .from('profiles')
           .select('avatar_url')
           .eq('id', user.id)
           .single();
           
-        if (profileData?.avatar_url) {
-          const { data } = await supabase.storage
+        if (data?.avatar_url) {
+          const { data: fileData } = await supabase.storage
             .from('avatars')
-            .download(profileData.avatar_url);
+            .download(data.avatar_url);
             
-          if (data) {
-            const url = URL.createObjectURL(data);
+          if (fileData) {
+            const url = URL.createObjectURL(fileData);
             setAvatarUrl(url);
           }
         }
@@ -119,7 +119,7 @@ export function MainNavigation() {
             <Link to="/" className="flex items-center">
               <img 
                 src="/doctor-icon.png" 
-                alt="Health AI Assistant" 
+                alt="SymptomSense" 
                 className="h-8 w-8 mr-2" 
               />
               <div className="flex flex-col">
