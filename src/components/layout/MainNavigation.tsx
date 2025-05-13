@@ -117,11 +117,13 @@ export function MainNavigation() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img 
-                src="/doctor-icon.png" 
-                alt="SymptomSense" 
-                className="h-8 w-8 mr-2" 
-              />
+              <div className="h-8 w-8 mr-2">
+                <img 
+                  src="/doctor-icon.png" 
+                  alt="SymptomSense" 
+                  className="h-full w-full" 
+                />
+              </div>
               <div className="flex flex-col">
                 <span className="font-bold text-lg">SymptomSense</span>
                 <span className="text-xs text-muted-foreground">AI Health Assistant</span>
