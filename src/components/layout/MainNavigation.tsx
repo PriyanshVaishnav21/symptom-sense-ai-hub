@@ -4,6 +4,14 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   Heart, 
@@ -13,21 +21,58 @@ import {
   User, 
   Menu, 
   X, 
-  FileText 
+  FileText,
+  Settings,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function MainNavigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, userName, signOut } = useAuth();
   const location = useLocation();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // Fetch user avatar
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      if (!user) return;
+      
+      try {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single();
+          
+        if (profileData?.avatar_url) {
+          const { data } = await supabase.storage
+            .from('avatars')
+            .download(profileData.avatar_url);
+            
+          if (data) {
+            const url = URL.createObjectURL(data);
+            setAvatarUrl(url);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching avatar:", error);
+      }
+    };
+    
+    fetchAvatar();
+  }, [user]);
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleSignOut = () => {
+    signOut();
   };
 
   // Navigation links configuration
@@ -77,7 +122,10 @@ export function MainNavigation() {
                 alt="Health AI Assistant" 
                 className="h-8 w-8 mr-2" 
               />
-              <span className="font-bold text-lg">Health AI Assistant</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg">SymptomSense</span>
+                <span className="text-xs text-muted-foreground">AI Health Assistant</span>
+              </div>
             </Link>
           </div>
           
@@ -102,15 +150,42 @@ export function MainNavigation() {
               <ThemeToggle />
               
               {user ? (
-                <Button 
-                  variant="ghost" 
-                  onClick={() => signOut()} 
-                  className="ml-3"
-                  title="Logout"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span className="sr-only">Logout</span>
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full ml-2" title={userName || user.email || "User"}>
+                      <Avatar className="h-9 w-9">
+                        {avatarUrl ? (
+                          <AvatarImage src={avatarUrl} />
+                        ) : (
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {userName ? userName.charAt(0).toUpperCase() : "U"}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <div className="flex flex-col space-y-1 leading-none p-2">
+                      <p className="font-medium">{userName || "User"}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="cursor-pointer flex w-full items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Profile Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      className="cursor-pointer text-destructive focus:text-destructive"
+                      onClick={handleSignOut}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link to="/login">
                   <Button variant="default" className="ml-3">
@@ -124,6 +199,20 @@ export function MainNavigation() {
           {/* Mobile menu button */}
           <div className="flex md:hidden items-center space-x-4">
             <ThemeToggle />
+            
+            {user && (
+              <Link to="/profile">
+                <Avatar className="h-8 w-8">
+                  {avatarUrl ? (
+                    <AvatarImage src={avatarUrl} />
+                  ) : (
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      {userName ? userName.charAt(0).toUpperCase() : "U"}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+              </Link>
+            )}
             
             <Button variant="ghost" onClick={toggleMobileMenu} size="sm">
               {isMobileMenuOpen ? (
@@ -156,14 +245,23 @@ export function MainNavigation() {
               ))}
               
               {user ? (
-                <Button 
-                  variant="ghost" 
-                  onClick={() => signOut()} 
-                  className="flex items-center w-full px-3 py-2 text-left"
-                >
-                  <LogOut className="mr-2 h-5 w-5" />
-                  Logout
-                </Button>
+                <>
+                  <Link
+                    to="/profile"
+                    className="flex items-center px-3 py-2 rounded-md text-base font-medium hover:bg-accent"
+                  >
+                    <Settings className="mr-2 h-5 w-5" />
+                    Profile Settings
+                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleSignOut} 
+                    className="flex items-center w-full px-3 py-2 text-left text-destructive hover:bg-accent"
+                  >
+                    <LogOut className="mr-2 h-5 w-5" />
+                    Logout
+                  </Button>
+                </>
               ) : (
                 <Link to="/login" className="block">
                   <Button variant="default" className="w-full mt-2">

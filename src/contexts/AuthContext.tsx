@@ -11,6 +11,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, name: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  updateUserName: (name: string) => Promise<{ error: any | null }>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,9 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Get user name from user metadata if available
         if (currentSession?.user) {
-          const metadata = currentSession.user.user_metadata;
-          const name = metadata?.name || metadata?.full_name || null;
-          setUserName(name);
+          fetchUserProfile(currentSession.user.id);
         } else {
           setUserName(null);
         }
@@ -44,11 +43,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Get user name from user metadata if available
+      // Get user name from profiles table if available
       if (currentSession?.user) {
-        const metadata = currentSession.user.user_metadata;
-        const name = metadata?.name || metadata?.full_name || null;
-        setUserName(name);
+        fetchUserProfile(currentSession.user.id);
       }
       
       setLoading(false);
@@ -58,6 +55,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return;
+      }
+      
+      setUserName(data?.name || null);
+    } catch (error) {
+      console.error('Error in fetchUserProfile:', error);
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -81,6 +97,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
   };
 
+  const updateUserName = async (name: string) => {
+    if (!user) return { error: new Error('User not authenticated') };
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ name })
+        .eq('id', user.id);
+        
+      if (!error) {
+        setUserName(name);
+      }
+      
+      return { error };
+    } catch (error) {
+      return { error };
+    }
+  };
+
   const value = {
     session,
     user,
@@ -88,7 +123,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loading,
     signIn,
     signUp,
-    signOut
+    signOut,
+    updateUserName
   };
 
   return (
