@@ -1,5 +1,4 @@
 
-
 import { supabase } from '@/integrations/supabase/client';
 import { MedicalReport } from '@/types/health';
 
@@ -42,18 +41,27 @@ export const createMedicalReport = async (report: Omit<MedicalReport, 'id' | 'us
     
     if (!user) throw new Error("User not authenticated");
     
+    // Convert Date objects to ISO strings if needed
+    const startDate = typeof report.startDate === 'object' 
+      ? report.startDate.toISOString() 
+      : report.startDate;
+      
+    const endDate = report.endDate && typeof report.endDate === 'object'
+      ? report.endDate.toISOString()
+      : report.endDate;
+    
     const { data, error } = await supabase
       .from('medical_reports')
-      .insert([{
+      .insert({
         user_id: user.id,
         title: report.title,
         condition_name: report.conditionName,
         medications: report.medications,
         description: report.description,
-        start_date: report.startDate,
-        end_date: report.endDate,
+        start_date: startDate,
+        end_date: endDate,
         active: report.active
-      }])
+      })
       .select()
       .single();
 
@@ -86,8 +94,16 @@ export const updateMedicalReport = async (id: string, report: Partial<Omit<Medic
     if (report.conditionName !== undefined) updateData.condition_name = report.conditionName;
     if (report.medications !== undefined) updateData.medications = report.medications;
     if (report.description !== undefined) updateData.description = report.description;
-    if (report.startDate !== undefined) updateData.start_date = report.startDate;
-    if (report.endDate !== undefined) updateData.end_date = report.endDate;
+    if (report.startDate !== undefined) {
+      updateData.start_date = typeof report.startDate === 'object'
+        ? report.startDate.toISOString()
+        : report.startDate;
+    }
+    if (report.endDate !== undefined) {
+      updateData.end_date = report.endDate && typeof report.endDate === 'object'
+        ? report.endDate.toISOString()
+        : report.endDate;
+    }
     if (report.active !== undefined) updateData.active = report.active;
     
     updateData.updated_at = new Date().toISOString();
