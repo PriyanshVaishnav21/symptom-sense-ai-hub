@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { DiagnosisResult, UserFeedback, SeverityLevel, PillAnalysisResult } from '@/types/health';
 
@@ -89,11 +88,15 @@ export const analyzePill = async (imageData: string): Promise<PillAnalysisResult
   }
 };
 
-export const analyzeSymptoms = async (symptoms: string[], description: string): Promise<DiagnosisResult[]> => {
+export const analyzeSymptoms = async (
+  symptoms: string[], 
+  description: string,
+  language: string = "english"
+): Promise<DiagnosisResult[]> => {
   try {
-    console.log('Calling analyze-symptoms edge function with:', { symptoms, description });
+    console.log('Calling analyze-symptoms edge function with:', { symptoms, description, language });
     const { data, error } = await supabase.functions.invoke('analyze-symptoms', {
-      body: { symptoms, description },
+      body: { symptoms, description, language },
     });
 
     if (error) {
@@ -105,6 +108,20 @@ export const analyzeSymptoms = async (symptoms: string[], description: string): 
     return data as DiagnosisResult[];
   } catch (error) {
     console.error('Error analyzing symptoms:', error);
+    throw error;
+  }
+};
+
+export const analyzePillByName = async (pillName: string): Promise<PillAnalysisResult> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('analyze-pill', {
+      body: { pillName },
+    });
+
+    if (error) throw error;
+    return data as PillAnalysisResult;
+  } catch (error) {
+    console.error('Error analyzing pill by name:', error);
     throw error;
   }
 };

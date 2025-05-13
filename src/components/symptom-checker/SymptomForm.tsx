@@ -10,10 +10,10 @@ import { Symptom } from "@/types/health";
 import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DiagnosisResult } from "@/types/health";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type SymptomFormProps = {
-  onSubmit: (symptoms: string[], description: string) => void;
+  onSubmit: (symptoms: string[], description: string, language: string) => void;
   isLoading: boolean;
 };
 
@@ -40,6 +40,7 @@ export function SymptomForm({ onSubmit, isLoading }: SymptomFormProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [description, setDescription] = useState("");
   const [selectedSymptoms, setSelectedSymptoms] = useState<Symptom[]>([]);
+  const [language, setLanguage] = useState("english");
   const { toast } = useToast();
 
   const filteredSymptoms = PREDEFINED_SYMPTOMS.filter(
@@ -71,7 +72,8 @@ export function SymptomForm({ onSubmit, isLoading }: SymptomFormProps) {
 
     onSubmit(
       selectedSymptoms.map(s => s.name),
-      description
+      description,
+      language
     );
   };
 
@@ -142,11 +144,28 @@ export function SymptomForm({ onSubmit, isLoading }: SymptomFormProps) {
             <Label htmlFor="description">How are you feeling today?</Label>
             <Textarea
               id="description"
-              placeholder="Describe your symptoms in detail (e.g., I have had a headache for 3 days and feeling tired)"
+              placeholder="Describe your symptoms in detail in English, Hindi, or Hinglish (e.g., सिरदर्द तीन दिनों से है और मुझे थकान महसूस हो रही है)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
             />
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="language">Preferred Response Language</Label>
+            <Select 
+              value={language} 
+              onValueChange={setLanguage}
+            >
+              <SelectTrigger id="language" className="w-full">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="english">English</SelectItem>
+                <SelectItem value="hindi">Hindi</SelectItem>
+                <SelectItem value="hinglish">Hinglish</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
         <CardFooter>

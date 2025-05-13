@@ -6,6 +6,7 @@ import { DiagnosisResult, SeverityLevel } from "@/types/health";
 import { useToast } from "@/hooks/use-toast";
 import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 import { saveHealthResult, saveFeedback, analyzeSymptoms } from "@/services/healthService";
+import { MainNavigation } from "@/components/layout/MainNavigation";
 
 const SymptomChecker = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -14,13 +15,13 @@ const SymptomChecker = () => {
   const [currentDiagnosisId, setCurrentDiagnosisId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleCheckSymptoms = async (symptoms: string[], description: string) => {
+  const handleCheckSymptoms = async (symptoms: string[], description: string, language: string = "english") => {
     setIsLoading(true);
     
     try {
       // Use the OpenAI API through our edge function instead of mock data
-      console.log("Submitting symptoms to AI analysis:", { symptoms, description });
-      const results = await analyzeSymptoms(symptoms, description);
+      console.log("Submitting symptoms to AI analysis:", { symptoms, description, language });
+      const results = await analyzeSymptoms(symptoms, description, language);
       console.log("Analysis results:", results);
       setDiagnosisResults(results);
       
@@ -114,19 +115,23 @@ const SymptomChecker = () => {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8">
-      {!diagnosisResults ? (
-        <SymptomForm onSubmit={handleCheckSymptoms} isLoading={isLoading} />
-      ) : showFeedbackForm ? (
-        <FeedbackForm onSubmit={handleFormFeedback} />
-      ) : (
-        <DiagnosisResults 
-          results={diagnosisResults} 
-          onSave={handleSaveResults} 
-          onFeedback={handleFeedback} 
-          onReset={handleReset}
-        />
-      )}
+    <div className="min-h-screen flex flex-col bg-health-light dark:bg-gray-900">
+      <MainNavigation />
+      
+      <div className="container max-w-4xl mx-auto px-4 py-8">
+        {!diagnosisResults ? (
+          <SymptomForm onSubmit={handleCheckSymptoms} isLoading={isLoading} />
+        ) : showFeedbackForm ? (
+          <FeedbackForm onSubmit={handleFormFeedback} />
+        ) : (
+          <DiagnosisResults 
+            results={diagnosisResults} 
+            onSave={handleSaveResults} 
+            onFeedback={handleFeedback} 
+            onReset={handleReset}
+          />
+        )}
+      </div>
     </div>
   );
 };

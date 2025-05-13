@@ -28,7 +28,7 @@ serve(async (req) => {
 
   try {
     // Parse request body
-    const { symptoms, description } = await req.json();
+    const { symptoms, description, language = "english" } = await req.json();
     
     if (!symptoms && !description) {
       throw new Error('Either symptoms or description is required');
@@ -56,9 +56,9 @@ serve(async (req) => {
       ? `Patient description: ${description}. ` 
       : '';
 
-    console.log(`Analyzing symptoms: ${symptomsText}${descriptionText}`);
+    console.log(`Analyzing symptoms: ${symptomsText}${descriptionText} in language: ${language}`);
 
-    // Enhanced prompt to ensure more accurate medical analysis
+    // Enhanced prompt to ensure more accurate medical analysis with language support
     const systemPrompt = `
       You are an AI medical assistant that analyzes symptoms to suggest possible conditions.
       For each condition, provide a detailed diagnosis including:
@@ -77,6 +77,10 @@ serve(async (req) => {
       
       Give 2-3 possible conditions based on the symptoms, from most to least likely.
       Be thorough and clinically accurate in your analysis.
+      
+      Important: If the input is in Hindi or Hinglish (mix of Hindi and English), detect it and provide your response in the same language.
+      Your advice should be culturally appropriate for Indian patients when responding in Hindi/Hinglish.
+      
       ONLY return valid JSON. Do not include any explanatory text outside the JSON structure.
     `;
 
@@ -90,7 +94,7 @@ serve(async (req) => {
         },
         {
           role: "user",
-          content: `${symptomsText}${descriptionText}Please analyze these symptoms and provide possible conditions.`
+          content: `${symptomsText}${descriptionText}Please analyze these symptoms and provide possible conditions. Respond in the same language as the input (Hindi, Hinglish, or English).`
         }
       ],
       response_format: { type: "json_object" },
@@ -131,7 +135,9 @@ serve(async (req) => {
                   confidenceScore: 50,
                   severity: "moderate",
                   description: "Could not properly analyze the provided symptoms.",
-                  advice: "Please consult with a healthcare professional."
+                  advice: language.includes("hindi") ? 
+                    "कृपया एक स्वास्थ्य देखभाल पेशेवर से परामर्श करें।" : 
+                    "Please consult with a healthcare professional."
                 }
               ]
             };
@@ -165,8 +171,12 @@ serve(async (req) => {
             conditionName: "Analysis Failed",
             confidenceScore: 0,
             severity: "moderate",
-            description: "Our system encountered an error analyzing your symptoms.",
-            advice: "Please try again or consult with a healthcare professional."
+            description: language.includes("hindi") ? 
+              "हमारी प्रणाली आपके लक्षणों का विश्लेषण करने में त्रुटि का सामना कर रही है।" : 
+              "Our system encountered an error analyzing your symptoms.",
+            advice: language.includes("hindi") ? 
+              "कृपया फिर से प्रयास करें या स्वास्थ्य देखभाल पेशेवर से परामर्श करें।" : 
+              "Please try again or consult with a healthcare professional."
           }
         ]
       };
