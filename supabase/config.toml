@@ -38,3 +38,7 @@ verify_jwt = true
 [[functions]]
 name = "analyze-symptoms"
 verify_jwt = true
+
+[[functions]]
+name = "health-check"
+verify_jwt = false
