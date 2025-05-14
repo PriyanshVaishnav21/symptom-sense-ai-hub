@@ -11,6 +11,7 @@ import PillAnalyzer from "./pages/PillAnalyzer";
 import History from "./pages/History";
 import MedicalReports from "./pages/MedicalReports";
 import Profile from "./pages/Profile";
+import HealthCheck from "./pages/HealthCheck";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -69,6 +70,7 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/health-check" element={<HealthCheck />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
