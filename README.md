@@ -1,5 +1,4 @@
-# Welcome to SymptomSense project
-
+# Welcome SymptomSense-AI Hub
 ## Follow these steps to run application locally:
 
 ```sh
