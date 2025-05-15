@@ -34,3 +34,39 @@ This directory contains Kubernetes manifest files for deploying the Symptom Sens
    ```
    kubectl get pods,services,ingress
    ```
+
+6. Cluster Creation
+```bash
+kind create cluster --name symptom-sense --config kind-cluster-config.yaml
+```
+
+7. Deployment
+```bash
+git clone https://github.com/PriyanshVaishnav21/symptom-sense-ai-hub.git
+cd symptom-sense-ai-hub/
+```
+
+### Building Docker Image
+```bash
+docker build -t symptom-sense-ai-hub:latest .
+```
+
+### Loding into KIND
+```bash
+kind load docker-image symptom-sense-ai-hub:latest --name symptom-sense
+```
+
+### Deploy to K8s
+```bash
+cd kubernetes-manifest/
+kubectl apply -f .
+```
+
+### Access Application
+- First set the incound rules in Security Groups
+```bash
+http://<public-ip-ec2>:30000
+```
+
+
+
