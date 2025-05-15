@@ -25,3 +25,5 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Applicaiton URL
+https://symptom-sense-ai-hub.vercel.app/
