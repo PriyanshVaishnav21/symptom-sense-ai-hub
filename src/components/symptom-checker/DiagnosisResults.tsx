@@ -5,7 +5,7 @@ import { DiagnosisResult, SeverityLevel } from "@/types/health";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, ThumbsDown, ThumbsUp, Pill, Info, Heart, Activity } from "lucide-react";
+import { AlertTriangle, ThumbsDown, ThumbsUp, Pill, Info, Heart, Activity, Shield } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -51,9 +51,8 @@ export function DiagnosisResults({ results, onSave, onFeedback, onReset }: Diagn
   // Sort results by confidence score (highest first)
   const sortedResults = [...results].sort((a, b) => b.confidenceScore - a.confidenceScore);
 
-  // Mock data for additional disease details
+  // Enhanced mock data for additional disease details including medicines
   const getDetailedInfo = (conditionName: string, severity: SeverityLevel) => {
-    // This would be dynamically fetched from a database in a real app
     const detailedInfo = {
       causes: [
         "Genetic factors",
@@ -67,11 +66,20 @@ export function DiagnosisResults({ results, onSave, onFeedback, onReset }: Diagn
         "Lifestyle adjustments",
         "Regular monitoring"
       ],
-      medications: [
+      suggestedMedicines: [
         {
-          name: severity === "severe" ? "Prescription strength medication" : "Over-the-counter options",
-          dosage: "As directed by healthcare provider",
-          frequency: "Varies based on condition severity"
+          name: severity === "severe" ? "Prescribed medication (consult doctor)" : "Paracetamol/Acetaminophen",
+          dosage: severity === "severe" ? "As prescribed by doctor" : "500mg every 6-8 hours",
+          frequency: severity === "severe" ? "As directed" : "Maximum 4 times daily",
+          type: severity === "severe" ? "Prescription" : "Over-the-counter",
+          purpose: "Pain relief and fever reduction"
+        },
+        {
+          name: severity === "mild" ? "Ibuprofen" : "Doctor-prescribed anti-inflammatory",
+          dosage: severity === "mild" ? "200-400mg" : "As prescribed",
+          frequency: severity === "mild" ? "Every 6-8 hours with food" : "As directed by physician",
+          type: severity === "mild" ? "Over-the-counter" : "Prescription",
+          purpose: "Inflammation and pain reduction"
         }
       ],
       selfCare: [
@@ -87,6 +95,16 @@ export function DiagnosisResults({ results, onSave, onFeedback, onReset }: Diagn
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Medical Disclaimer Alert */}
+      <Alert className="border-blue-500 bg-blue-50 dark:bg-blue-950 dark:border-blue-700">
+        <Shield className="h-5 w-5 text-blue-500" />
+        <AlertTitle className="text-blue-700 dark:text-blue-300 font-bold">Important Medical Disclaimer</AlertTitle>
+        <AlertDescription className="text-blue-600 dark:text-blue-400">
+          This analysis is for informational purposes only and should not replace professional medical advice. 
+          Always consult with a qualified healthcare provider before taking any medication or making health decisions.
+        </AlertDescription>
+      </Alert>
+
       {highestSeverity === "severe" && (
         <Alert className="border-health-severe bg-red-50 dark:bg-red-950 dark:border-red-700">
           <AlertTriangle className="h-5 w-5 text-health-severe" />
@@ -144,7 +162,7 @@ export function DiagnosisResults({ results, onSave, onFeedback, onReset }: Diagn
                     <AccordionTrigger className="text-sm font-medium">
                       <div className="flex items-center gap-1.5">
                         <Info className="h-4 w-4" />
-                        Detailed Information
+                        Detailed Information & Suggested Medicines
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4 text-sm">
@@ -175,13 +193,30 @@ export function DiagnosisResults({ results, onSave, onFeedback, onReset }: Diagn
                       <div className="space-y-2">
                         <div className="flex items-center gap-1.5">
                           <Pill className="h-4 w-4 text-green-500" />
-                          <h4 className="font-semibold">Medications</h4>
+                          <h4 className="font-semibold">Suggested Medicines</h4>
                         </div>
-                        {detailedInfo.medications.map((medication, i) => (
-                          <div key={i} className="ml-5 p-2 bg-muted/30 rounded-md">
-                            <p className="font-medium">{medication.name}</p>
-                            <p className="text-xs text-muted-foreground">Dosage: {medication.dosage}</p>
-                            <p className="text-xs text-muted-foreground">Frequency: {medication.frequency}</p>
+                        <div className="p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md mb-3">
+                          <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">
+                            ⚠️ IMPORTANT: These are general suggestions only. Always consult with a doctor or pharmacist before taking any medication. Dosages may vary based on your individual health condition, age, weight, and other medications you may be taking.
+                          </p>
+                        </div>
+                        {detailedInfo.suggestedMedicines.map((medication, i) => (
+                          <div key={i} className="ml-5 p-3 bg-muted/30 rounded-md border-l-4 border-green-500">
+                            <div className="flex justify-between items-start mb-2">
+                              <p className="font-medium text-green-700 dark:text-green-300">{medication.name}</p>
+                              <Badge variant="outline" className="text-xs">
+                                {medication.type}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-1">
+                              <strong>Purpose:</strong> {medication.purpose}
+                            </p>
+                            <p className="text-xs text-muted-foreground mb-1">
+                              <strong>Suggested Dosage:</strong> {medication.dosage}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              <strong>Frequency:</strong> {medication.frequency}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -205,7 +240,7 @@ export function DiagnosisResults({ results, onSave, onFeedback, onReset }: Diagn
                 
                 <div>
                   <h4 className={`text-sm font-semibold mb-1 ${getSeverityTextClass(result.severity)}`}>
-                    Advice:
+                    Medical Advice:
                   </h4>
                   <p className="text-sm">{result.advice}</p>
                 </div>

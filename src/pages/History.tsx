@@ -5,6 +5,7 @@ import { DiagnosisResult } from "@/types/health";
 import { useToast } from "@/hooks/use-toast";
 import { getUserHealthHistory, deleteHealthResult } from "@/services/healthService";
 import { useAuth } from "@/contexts/AuthContext";
+import { MainNavigation } from "@/components/layout/MainNavigation";
 
 const History = () => {
   const [history, setHistory] = useState<DiagnosisResult[]>([]);
@@ -54,11 +55,14 @@ const History = () => {
 
   if (isLoading) {
     return (
-      <div className="container max-w-4xl mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <div className="animate-pulse mb-4 h-8 w-32 bg-muted rounded mx-auto"></div>
-            <div className="animate-pulse h-4 w-48 bg-muted rounded mx-auto"></div>
+      <div className="min-h-screen flex flex-col bg-health-light dark:bg-gray-900">
+        <MainNavigation />
+        <div className="container max-w-4xl mx-auto px-4 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="text-center">
+              <div className="animate-pulse mb-4 h-8 w-32 bg-muted rounded mx-auto"></div>
+              <div className="animate-pulse h-4 w-48 bg-muted rounded mx-auto"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -66,8 +70,11 @@ const History = () => {
   }
 
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8">
-      <HistoryDashboard history={history} onDelete={handleDeleteRecord} />
+    <div className="min-h-screen flex flex-col bg-health-light dark:bg-gray-900">
+      <MainNavigation />
+      <div className="container max-w-4xl mx-auto px-4 py-8">
+        <HistoryDashboard history={history} onDelete={handleDeleteRecord} />
+      </div>
     </div>
   );
 };
