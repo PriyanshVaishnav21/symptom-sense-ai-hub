@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,9 +25,9 @@ const Index = () => {
             <div className="space-y-8">
               <div className="flex flex-col items-center">
                 <img 
-                  src="/doctor-icon.png" 
+                  src="/lovable-uploads/0c1f69d9-8fbe-47ee-8b5c-83db03030f36.png" 
                   alt="SymptomSense Logo" 
-                  className="h-24 w-24 mb-6 object-contain"
+                  className="h-36 mb-6"
                 />
                 <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-health-dark dark:text-white text-center">
                   AI-Powered Health Symptom Checker
@@ -241,9 +240,9 @@ const Index = () => {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <img 
-                  src="/doctor-icon.png" 
+                  src="/lovable-uploads/0c1f69d9-8fbe-47ee-8b5c-83db03030f36.png" 
                   alt="SymptomSense Logo" 
-                  className="h-8 w-8 object-contain" 
+                  className="h-8" 
                 />
                 <span className="font-bold text-lg text-health-primary dark:text-health-secondary">SymptomSense</span>
               </div>
